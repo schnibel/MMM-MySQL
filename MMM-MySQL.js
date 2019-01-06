@@ -1,8 +1,8 @@
 /* Magic Mirror
  * Module: MMM-MySQL
  *
- * By Christophe Michel @schnibel
- * May 2018
+ * By Schnibel @schnibel
+ * January 2019
  * MIT Licensed.
  *
  */
