@@ -57,7 +57,7 @@ module.exports = NodeHelper.create({
             });
             console.log("nbConn1 =" + (self.nbConn1++) + " / nbConn2="+self.nbConn2);*/
             
-            console.log("Getting Sensors for " + payload.config.title + " ----- Total number of database's connections = " + self.nbDBConnection + " ( "+ self.connection + ")");
+            //console.log("Getting Sensors for " + payload.config.title + " ----- Total number of database's connections = " + self.nbDBConnection + " ( "+ self.connection + ")");
 
 
 
