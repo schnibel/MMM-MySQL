@@ -14,6 +14,7 @@ Module.register("MMM-MySQL",{
 
     defaults: {
         updateInterval: 5 * 60 * 1000,
+        animationSpeed: 2.5 * 1000,
 	},
 
 	// Override dom generator.
@@ -268,7 +269,7 @@ Module.register("MMM-MySQL",{
 		Log.info("Getting sensors");
 
         this.counter = 0;
-        console.log("@@@@@@@ getSensors - nb sensors : " + this.sensors.length + " / counter = " + this.counter);
+        //console.log("getSensors - nb sensors : " + this.sensors.length + " / counter = " + this.counter);
 		for(var i = 0; i < this.sensors.length; i++) {
 
 			this.sendSocketNotification("GET_SENSORS",
@@ -341,7 +342,7 @@ Module.register("MMM-MySQL",{
             
             // BAD CODE... TODO
             if (this.counter === this.sensors.length) {
-                //console.log("@@@@@@@ socketNotificationReceived - nb sensors : " + this.sensors.length + " / counter = " + this.counter);
+                //console.log("socketNotificationReceived - nb sensors : " + this.sensors.length + " / counter = " + this.counter);
                 this.counter = 0;
 
                 var oldest_update;

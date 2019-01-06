@@ -13,27 +13,53 @@ var NodeHelper = require('node_helper');
 module.exports = NodeHelper.create({
 
 	start: function() {
-		console.log("Starting node helper: " + this.name);	
+        console.log("Starting node helper: " + this.name);	
+        var self = this;
+        self.nbDBConnection = 0;
 	},
 
-	socketNotificationReceived: function(notification, payload) {
-		var self = this;
+    sqlConnection: function(payload) {
+        var self = this;
 
-		/**console.log("Notification: " + notification + " host: " + payload.config.host
-		                                            + " user: " + payload.config.user
-		                                            + " password: " + payload.config.password
-		                                            + " database: " + payload.config.database
-		                                            ); **/
+        /*console.log("sqlConnection : " + 
+        " host: " + payload.config.host + 
+        " user: " + payload.config.user + 
+        " password: " + payload.config.password + 
+        " database: " + payload.config.database
+        );*/
+
+        connection = mysql.createConnection({
+            host: payload.config.host,
+            user: payload.config.user,
+            password: payload.config.password,
+            database: payload.config.database,
+            multipleStatements: true
+        });
+        
+        console.log("Connecting to MySQL DB for ----- " + payload.config.title + " ----- Total number of database's connections = " + (++self.nbDBConnection));
+
+
+        return connection;
+    },
+    
+    socketNotificationReceived: function(notification, payload) {
+        var self = this;
+        
 
         if(notification === "GET_SENSORS") {
 
-			var connection = mysql.createConnection({
+			/*var connection = mysql.createConnection({
 				host: payload.config.host,
 				user: payload.config.user,
 				password: payload.config.password,
 				database: payload.config.database,
 				multipleStatements: true
-			});
+            });
+            console.log("nbConn1 =" + (self.nbConn1++) + " / nbConn2="+self.nbConn2);*/
+            
+            console.log("Getting Sensors for " + payload.config.title + " ----- Total number of database's connections = " + self.nbDBConnection + " ( "+ self.connection + ")");
+
+
 
 			var sensor_obj = {
                 table_col1: payload.table_col1,
@@ -91,9 +117,14 @@ module.exports = NodeHelper.create({
 
             var func = function(callback) {
                 if (sql_stmt !== "") {
-                    connection.connect();
+//                    self.connection.connect();
+//                    console.log("nbConn1 =" + (self.nbConn1) + " / nbConn2="+(++self.nbConn2));
+                    if (self.connection === undefined) {
+                        self.connection = self.sqlConnection(payload);
+                    }
 
-                    connection.query(sql_stmt, function(err, rows, fields) {
+
+                    self.connection.query(sql_stmt, function(err, rows, fields) {
                         if(err) {
                             throw err;
                         }
@@ -101,7 +132,8 @@ module.exports = NodeHelper.create({
                         callback(rows);
                     });
 
-                    connection.end();
+//                    self.connection.end();
+//                    console.log("nbConn1 =" + (self.nbConn1) + " / nbConn2="+(--self.nbConn2));
                 }
             }
 
