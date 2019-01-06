@@ -1,0 +1,12 @@
+{
+  "name": "MMM-MySQL",
+  "version": "0.0.1",
+  "description": "Magic Mirror Module to display OpenHAB data stored in MySQL",
+  "main": "MMM-MySQL.js",
+  "scripts": {},
+  "author": "Schnibel @schnibel",
+  "license": "MIT",
+  "devDependencies": {
+    "mysql": "latest"
+  }
+}
