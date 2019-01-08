@@ -262,7 +262,8 @@ Module.register("MMM-MySQL",{
 		Log.info("Starting module: " + this.name);
 
         this.initialize();
-		this.getSensors();
+        this.setDBConnection();
+		//this.getSensors();
 	},
 
 	getSensors: function() {
@@ -298,11 +299,24 @@ Module.register("MMM-MySQL",{
         }
 	},
 
+	setDBConnection: function() {
+		Log.info("Set Database Connection");
+
+        this.sendSocketNotification("DB_CONNECT",
+		    {
+			    config: this.config,
+            }
+        );
+	},
+
 
 
 	socketNotificationReceived: function(notification, payload) {
 
-		if(notification === "RESULT_SENSORS") {
+        if (notification === "DB_CONNECTED") {
+            this.getSensors();
+        }
+		else if (notification === "RESULT_SENSORS") {
 			//Log.info("Received sensor data");
 
             this.config.recently_updated = "true";
@@ -438,7 +452,8 @@ Module.register("MMM-MySQL",{
         self.updateDom(self.config.animationSpeed);
 
         timer = setInterval(function() {
-            self.getSensors();
+            //self.getSensors();
+            self.setDBConnection();
         }, this.config.updateInterval);
     },
 

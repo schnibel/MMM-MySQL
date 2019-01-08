@@ -36,17 +36,28 @@ module.exports = NodeHelper.create({
             multipleStatements: true
         });
         
-        console.log("Connecting to MySQL DB for ----- " + payload.config.title + " ----- Total number of database's connections = " + (++self.nbDBConnection));
-
-
         return connection;
     },
     
     socketNotificationReceived: function(notification, payload) {
         var self = this;
         
-
-        if(notification === "GET_SENSORS") {
+        if (notification === "DB_CONNECT") {
+            // self.connection.connect();
+            var currentDBstatus = "";
+            if (self.connection === undefined) currentDBstatus = "undefined";
+            else currentDBstatus = self.connection.state;
+            
+            if ((self.connection === undefined) || (self.connection.state === 'disconnected')) {
+                console.log("[MMM-MySQL] - Create new database connection because current status is " + currentDBstatus + " for " + payload.config.title);
+                self.connection = self.sqlConnection(payload);
+                self.sendSocketNotification("DB_CONNECTED");
+            }
+            else {
+                console.log("[MMM-MySQL] - Reusing existing database connection as current status is " + self.connection.state + " for " + payload.config.title);
+            }
+        }
+        else if(notification === "GET_SENSORS") {
 
 			/*var connection = mysql.createConnection({
 				host: payload.config.host,
@@ -58,8 +69,6 @@ module.exports = NodeHelper.create({
             console.log("nbConn1 =" + (self.nbConn1++) + " / nbConn2="+self.nbConn2);*/
             
             //console.log("Getting Sensors for " + payload.config.title + " ----- Total number of database's connections = " + self.nbDBConnection + " ( "+ self.connection + ")");
-
-
 
 			var sensor_obj = {
                 table_col1: payload.table_col1,
@@ -116,18 +125,8 @@ module.exports = NodeHelper.create({
           //console.log("sql_stmt = " + sql_stmt);
 
             var func = function(callback) {
-                if (sql_stmt !== "") {
-//                    self.connection.connect();
-//                    console.log("nbConn1 =" + (self.nbConn1) + " / nbConn2="+(++self.nbConn2));
-                    if (self.connection !== undefined) console.log("MySQL DB connection status : " + self.connection.state);
-                    else console.log("MySQL DB connection status : undefined");
-                    if ((self.connection === undefined) || (self.connection.state === 'disconnected')) {
-                        console.log("ERROR : Connection lost, need to reconnect");
-                        console.error("ERROR : Connection lost, need to reconnect");
-                        self.connection = self.sqlConnection(payload);
-                    }
-
-
+                if ((sql_stmt !== "") && (self.connection !== undefined)) {
+                    console.log("[MMM-MySQL] - Current database connection status is " + ((self.connection !== undefined) ? self.connection.state : self.connection) + " for " + payload.config.title);
                     self.connection.query(sql_stmt, function(err, rows, fields) {
                         if(err) {
                             throw err;
@@ -135,9 +134,6 @@ module.exports = NodeHelper.create({
 
                         callback(rows);
                     });
-
-//                    self.connection.end();
-//                    console.log("nbConn1 =" + (self.nbConn1) + " / nbConn2="+(--self.nbConn2));
                 }
             }
 
