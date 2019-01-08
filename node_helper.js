@@ -119,7 +119,11 @@ module.exports = NodeHelper.create({
                 if (sql_stmt !== "") {
 //                    self.connection.connect();
 //                    console.log("nbConn1 =" + (self.nbConn1) + " / nbConn2="+(++self.nbConn2));
-                    if (self.connection === undefined) {
+                    if (self.connection !== undefined) console.log("MySQL DB connection status : " + self.connection.state);
+                    else console.log("MySQL DB connection status : undefined");
+                    if ((self.connection === undefined) || (self.connection.state === 'disconnected')) {
+                        console.log("ERROR : Connection lost, need to reconnect");
+                        console.error("ERROR : Connection lost, need to reconnect");
                         self.connection = self.sqlConnection(payload);
                     }
 
